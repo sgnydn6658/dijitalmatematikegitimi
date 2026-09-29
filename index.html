@@ -1,850 +1,272 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-   <!-- Mobil görünüm düzeltme kodları -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<style>
-  html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
-    height: 100dvh !important;
-    max-height: 100dvh !important;
-    overflow: hidden !important;
-    position: fixed !important;
-    top: 0;
-    left: 0;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-  }
-
-  canvas, svg, img, #game, .game, div {
-    max-width: 100vw !important;
-    max-height: 100dvh !important;
-    object-fit: contain !important;
-  }
-
-  @media (orientation: landscape) {
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Matematik Sembolleri Tombala Oyunu</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
     body {
-      max-height: 100dvh !important;
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      min-height: 100dvh;
+      overflow-x: hidden;
     }
-  }
-</style>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Geombala Oyunu</title>
-<style>
-    * {
-        box-sizing: border-box;
-        user-select: none;
-        -webkit-user-select: none;
-        margin: 0;
-        padding: 0;
-    }
-    html, body {
-        width: 100%;
-        height: 100vh;
-        overflow: hidden;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f0f4f8;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-        padding: 8px 12px;
-    }
+    h2 { margin-bottom: 5px; font-size: 16px; color: #333; text-align: center; }
     
-    /* Header & Stats Bar */
-    header {
-        width: 100%;
-        max-width: 1200px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    .top-bar {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .section-title {
+      font-weight: bold;
+      font-size: 14px;
+      margin: 10px 0 5px 0;
+      width: 100%;
+      max-width: 700px;
     }
 
-    h1 {
-        color: #2c3e50;
-        font-size: clamp(18px, 2.8vh, 26px);
-        letter-spacing: 1.5px;
-        font-weight: 800;
-        text-transform: uppercase;
-    }
-
-    .instructions {
-        color: #555;
-        font-size: clamp(11px, 1.6vh, 13px);
-        text-align: center;
-    }
-
-    /* Controls & Dashboard */
-    .dashboard {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        background: #ffffff;
-        padding: 6px 16px;
-        border-radius: 30px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-        border: 1px solid #e1e8ed;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .stat-badge {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: clamp(11px, 1.6vh, 14px);
-        font-weight: 700;
-        color: #34495e;
-    }
-
-    .stat-badge span {
-        color: #2980b9;
-    }
-
-    .btn {
-        background-color: #2980b9;
-        color: white;
-        border: none;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: clamp(11px, 1.5vh, 13px);
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        box-shadow: 0 2px 6px rgba(41, 128, 185, 0.3);
-    }
-
-    .btn:hover {
-        background-color: #1c5982;
-        transform: translateY(-1px);
-    }
-
-    .btn:active {
-        transform: translateY(1px);
-    }
-
-    .btn-secondary {
-        background-color: #7f8c8d;
-        box-shadow: 0 2px 6px rgba(127, 140, 141, 0.3);
-    }
-    .btn-secondary:hover {
-        background-color: #626d6e;
-    }
-
-    /* Ana Düzen */
-    .main-container {
-        display: flex;
-        flex-direction: row;
-        gap: 12px;
-        width: 100%;
-        max-width: 1200px;
-        height: 82vh;
-        justify-content: center;
-        align-items: stretch;
-    }
-
-    /* Sol Kolon: Şekil-1 */
-    .left-column {
-        flex: 1.1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* Sağ Kolon: Şekil-2 ve Şekil-3 */
-    .right-column {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        justify-content: space-between;
-    }
-
-    .board-wrapper {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-
-    .right-column .board-wrapper {
-        height: 48.5%;
-    }
-
-    .board-title {
-        font-weight: 700;
-        font-size: clamp(11px, 1.7vh, 14px);
-        color: #34495e;
-        margin-bottom: 4px;
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-    }
-    
-    /* Grid Yapıları */
+    /* Izgara yapıları */
     .grid {
-        display: grid;
-        gap: 4px;
-        background-color: #bdc3c7;
-        padding: 4px;
-        border-radius: 8px;
-        flex: 1;
-        height: 100%;
+      display: grid;
+      gap: 2px;
+      background-color: #999;
+      border: 2px solid #333;
+      margin-bottom: 15px;
+      width: 100%;
+      max-width: 700px;
     }
 
-    .grid-s1 {
-        grid-template-columns: repeat(5, 1fr);
-        grid-template-rows: repeat(4, 1fr);
-        background-color: #7f8c8d;
-    }
+    /* Şekil 1: 5 sütun, 4 satır */
+    .grid-s1 { grid-template-columns: repeat(5, 1fr); }
+    /* Şekil 2 ve 3: 6 sütun, 3 satır */
+    .grid-s23 { grid-template-columns: repeat(6, 1fr); }
 
-    .grid-s2, .grid-s3 {
-        grid-template-columns: repeat(6, 1fr);
-        grid-template-rows: repeat(3, 1fr);
-    }
-
-    /* Hücreler */
     .cell {
-        background-color: #fff;
-        border-radius: 5px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: clamp(10px, 1.6vh, 14px);
-        font-weight: 600;
-        text-align: center;
-        position: relative;
-        padding: 2px;
-        overflow: hidden;
-    }
-    .grid-s2 .cell.colored {
-        background-color: #e67e22;
-    }
-    .grid-s3 .cell.colored {
-        background-color: #f39c12;
+      background-color: #fff;
+      aspect-ratio: 2.2 / 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 2px;
+      position: relative;
     }
 
-    /* Sürüklenebilir Kartlar */
-    .draggable {
-        width: 100%;
-        height: 100%;
-        background-color: #ffffff;
-        border: 2px dashed #2980b9;
-        border-radius: 5px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: grab;
-        touch-action: none;
-        z-index: 10;
-        font-size: clamp(9px, 1.4vh, 12px);
-        color: #2c3e50;
-        font-weight: 600;
-        padding: 2px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        transition: border-color 0.2s ease, background-color 0.2s ease;
-    }
-    .draggable:hover {
-        border-color: #27ae60;
-        background-color: #f4faf7;
-    }
-    .draggable:active {
-        cursor: grabbing;
-    }
-    .dragging {
-        opacity: 0.95;
-        position: fixed !important;
-        pointer-events: none;
-        z-index: 1000 !important;
-        transform: scale(1.06);
-        box-shadow: 0 10px 22px rgba(0,0,0,0.3);
+    /* Şekil 2 Renkli (Koyu Sarı/Turuncu) */
+    .cell.s2-filled { background-color: #d4a32b; }
+    /* Şekil 3 Renkli (Açık Turuncu) */
+    .cell.s3-filled { background-color: #f8c48c; }
+
+    /* Taşınabilir kartlar */
+    .card {
+      background-color: #ffffff;
+      border: 1px dashed #444;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: grab;
+      font-size: 11px;
+      line-height: 1.1;
     }
 
-    /* Hedef Hücreler */
-    .target-cell {
-        border: 1px solid #bdc3c7;
-        transition: background-color 0.3s ease;
-    }
-    .target-cell.correct {
-        background-color: #2ecc71 !important;
-        color: white;
-        border-color: #27ae60;
-        font-size: clamp(11px, 1.9vh, 15px);
-    }
-    .target-cell.correct::after {
-        content: ' ✓';
-        font-size: 15px;
-        font-weight: bold;
-    }
+    /* Durum Efektleri */
+    .correct { background-color: #4CAF50 !important; color: white; }
+    .wrong { background-color: #f44336 !important; color: white; }
     
-    /* Yanlış Efekti */
-    @keyframes wrong-shake {
-        0% { transform: translateX(0); background-color: #e74c3c; color: white; }
-        20% { transform: translateX(-6px); }
-        40% { transform: translateX(6px); }
-        60% { transform: translateX(-6px); }
-        80% { transform: translateX(6px); }
-        100% { transform: translateX(0); background-color: #fff; }
-    }
-    .wrong-anim {
-        animation: wrong-shake 0.4s ease-in-out;
-    }
+    /* Mobil Seçim Efekti */
+    .selected { outline: 3px solid #2196F3; }
 
-    .empty-slot {
-        background-color: #d5dbdb !important;
-        border: 1px inset #bbb;
+    @media (max-width: 600px) {
+      .cell { font-size: 9px; }
+      .card { font-size: 9px; }
     }
-
-    /* Modallar (Tebrik Ekranı) */
-    .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.65);
-        backdrop-filter: blur(4px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 2000;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.3s ease;
-    }
-
-    .modal-overlay.active {
-        opacity: 1;
-        pointer-events: auto;
-    }
-
-    .modal-card {
-        background: #ffffff;
-        border-radius: 16px;
-        padding: 28px 24px;
-        width: 90%;
-        max-width: 420px;
-        text-align: center;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        transform: scale(0.8);
-        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .modal-overlay.active .modal-card {
-        transform: scale(1);
-    }
-
-    .modal-card h2 {
-        color: #27ae60;
-        font-size: 24px;
-        margin-bottom: 10px;
-    }
-
-    .modal-card p {
-        color: #555;
-        font-size: 15px;
-        margin-bottom: 18px;
-    }
-
-    .modal-stats {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 12px;
-        margin-bottom: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .modal-stat-item {
-        display: flex;
-        justify-content: space-between;
-        font-size: 14px;
-        font-weight: 600;
-        color: #2c3e50;
-    }
-
-    /* Canvas Konfeti */
-    #confettiCanvas {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 2001;
-    }
-</style>
+  </style>
 </head>
 <body>
 
-<canvas id="confettiCanvas"></canvas>
+  <h2>Geometrik Semboller Tombala Oyunu</h2>
 
-<header>
-    <div class="top-bar">
-        <h1>GEOMBALA OYUNU</h1>
-        <div class="dashboard">
-            <div class="stat-badge">⏱️ Süre: <span id="timerText">00:00</span></div>
-            <div class="stat-badge">🏆 Puan: <span id="scoreText">0</span></div>
-            <div class="stat-badge">🎯 İlerleme: <span id="progressText">0 / 20</span></div>
-            <button id="resetBtn" class="btn">🔄 Yeniden Başlat</button>
-            <button id="soundBtn" class="btn btn-secondary">🔊 Ses: Açık</button>
-        </div>
-    </div>
-    <p class="instructions">Sol taraftaki (Şekil-1) kartları sağ taraftaki (Şekil-2 ve Şekil-3) doğru sembollerin üzerine sürükleyin.</p>
-</header>
+  <div class="section-title">Şekil-1 (Kartlar)</div>
+  <div id="sekil1" class="grid grid-s1"></div>
 
-<div class="main-container">
-    <!-- SOL KOLON: ŞEKİL 1 -->
-    <div class="left-column">
-        <div class="board-wrapper">
-            <div class="board-title">📦 Şekil - 1 (Kart Havuzu)</div>
-            <div id="sekil1" class="grid grid-s1"></div>
-        </div>
-    </div>
+  <div class="section-title">Şekil-2</div>
+  <div id="sekil2" class="grid grid-s23"></div>
 
-    <!-- SAĞ KOLON: ŞEKİL 2 VE ŞEKİL 3 -->
-    <div class="right-column">
-        <!-- ŞEKİL 2 -->
-        <div class="board-wrapper">
-            <div class="board-title">🔷 Şekil - 2</div>
-            <div id="sekil2" class="grid grid-s2"></div>
-        </div>
+  <div class="section-title">Şekil-3</div>
+  <div id="sekil3" class="grid grid-s23"></div>
 
-        <!-- ŞEKİL 3 -->
-        <div class="board-wrapper">
-            <div class="board-title">🔶 Şekil - 3</div>
-            <div id="sekil3" class="grid grid-s3"></div>
-        </div>
-    </div>
-</div>
+  <script>
+    // Şekil-1 Verileri (Soru Metni ve Doğru Eşleşecek Sembol Kodu)
+    const cardsData = [
+      { id: "c1", text: "AB doğru parçası", target: "[AB]" },
+      { id: "c2", text: "B noktası", target: "B" },
+      { id: "c3", text: "CD doğrusu", target: "CD" },
+      { id: "c4", text: "KLM açısı", target: "KLM_arc" },
+      { id: "c5", text: "MN ışını", target: "[MN" },
+      { id: "c6", text: "AB doğru parçasının uzunluğu", target: "|AB|" },
+      { id: "c7", text: "KL doğrusu", target: "KL" },
+      { id: "c8", text: "C noktası", target: "C" },
+      { id: "c9", text: "CD ışını", target: "[CD" },
+      { id: "c10", text: "MN doğru parçası", target: "[MN]" },
+      { id: "c11", text: "ABC açısı", target: "ABC_arc" },
+      { id: "c12", text: "AB doğrusu", target: "AB" },
+      { id: "c13", text: "CD doğru parçası", target: "[CD]" },
+      { id: "c14", text: "YZ doğru parçasının uzunluğu", target: "|YZ|" },
+      { id: "c15", text: "Z noktası", target: "Z" },
+      { id: "c16", text: "AB ışını", target: "[AB" },
+      { id: "c17", text: "YZ doğrusu", target: "YZ" },
+      { id: "c18", text: "KL doğru parçası", target: "[KL]" },
+      { id: "c19", text: "MN doğrusu", target: "MN" },
+      { id: "c20", text: "KL ışını", target: "[KL" }
+    ];
 
-<!-- Victory Modal -->
-<div id="victoryModal" class="modal-overlay">
-    <div class="modal-card">
-        <h2>🎉 TEBRİKLER! 🎉</h2>
-        <p>Tüm geometrik sembolleri başarıyla eşleştirdiniz!</p>
-        <div class="modal-stats">
-            <div class="modal-stat-item"><span>Tamamlama Süresi:</span><span id="finalTime">00:00</span></div>
-            <div class="modal-stat-item"><span>Toplam Puan:</span><span id="finalScore">0</span></div>
-            <div class="modal-stat-item"><span>En Yüksek Puan:</span><span id="highScoreText">0</span></div>
-        </div>
-        <button id="playAgainBtn" class="btn" style="width: 100%; justify-content: center; padding: 10px; font-size: 15px;">🚀 Tekrar Oyna</button>
-    </div>
-</div>
+    // Şekil-2 Verileri (null olanlar renkli/dolu kutulardır)
+    const sekil2Data = [
+      null, null, "[AB]", "MN", null, "|AB|",
+      null, "[CD]", null, "[MN", "CD", "Z",
+      "KL", "C", null, null, "ABC_arc", null
+    ];
 
-<script>
-// Web Audio API Synthesizer (Harici Ses Dosyası Gerektirmez)
-class SoundManager {
-    constructor() {
-        this.ctx = null;
-        this.muted = false;
+    // Şekil-3 Verileri (null olanlar renkli/dolu kutulardır)
+    const sekil3Data = [
+      "[AB", "YZ", null, "[KL]", null, "B",
+      null, null, "KLM_arc", null, "[MN]", null,
+      null, "[CD", null, "[KL", "|YZ|", "AB"
+    ];
+
+    // Sembol Metinleri / Görselleştirmeleri
+    function formatSymbol(code) {
+      if (!code) return "";
+      if (code === "KLM_arc") return "K<span style='text-decoration:overline'>L</span>M";
+      if (code === "ABC_arc") return "A<span style='text-decoration:overline'>B</span>C";
+      return code;
     }
 
-    init() {
-        if (!this.ctx) {
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (AudioCtx) this.ctx = new AudioCtx();
-        }
-        if (this.ctx && this.ctx.state === 'suspended') {
-            this.ctx.resume();
-        }
+    // Ses Efektleri (Web Audio API)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      if (type === 'correct') {
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
+      } else {
+        osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.2);
+      }
     }
 
-    playTone(freq, type, duration, delay = 0) {
-        if (this.muted) return;
-        this.init();
-        if (!this.ctx) return;
+    let selectedCard = null;
 
-        setTimeout(() => {
-            try {
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-
-                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.start();
-                osc.stop(this.ctx.currentTime + duration);
-            } catch (e) {}
-        }, delay);
-    }
-
-    playCorrect() {
-        this.playTone(523.25, 'sine', 0.15, 0);   // C5
-        this.playTone(659.25, 'sine', 0.15, 80);  // E5
-        this.playTone(783.99, 'sine', 0.25, 160); // G5
-    }
-
-    playWrong() {
-        this.playTone(220, 'sawtooth', 0.15, 0);
-        this.playTone(180, 'sawtooth', 0.2, 100);
-    }
-
-    playVictory() {
-        this.playTone(523.25, 'triangle', 0.2, 0);   // C5
-        this.playTone(659.25, 'triangle', 0.2, 150); // E5
-        this.playTone(783.99, 'triangle', 0.2, 300); // G5
-        this.playTone(1046.50, 'triangle', 0.5, 450); // C6
-    }
-}
-
-const sounds = new SoundManager();
-
-// Şekil 1 Verileri (Sözel ifadeler ve sembolleri)
-const rawSekil1Data = [
-    { id: "s1_1", text: "AB doğru parçası", target: "[AB]" },
-    { id: "s1_2", text: "B noktası", target: "B" },
-    { id: "s1_3", text: "CD doğrusu", target: "CD" },
-    { id: "s1_4", text: "KLM açısı", target: "K̂LM" },
-    { id: "s1_5", text: "MN ışını", target: "[MN" },
-    { id: "s1_6", text: "AB doğru parçasının uzunluğu", target: "|AB|" },
-    { id: "s1_7", text: "KL doğrusu", target: "KL" },
-    { id: "s1_8", text: "C noktası", target: "C" },
-    { id: "s1_9", text: "CD ışını", target: "[CD" },
-    { id: "s1_10", text: "MN doğru parçası", target: "[MN]" },
-    { id: "s1_11", text: "ABC açısı", target: "ÂBC" },
-    { id: "s1_12", text: "AB doğrusu", target: "AB" },
-    { id: "s1_13", text: "CD doğru parçası", target: "[CD]" },
-    { id: "s1_14", text: "YZ doğru parçasının uzunluğu", target: "|YZ|" },
-    { id: "s1_15", text: "Z noktası", target: "Z" },
-    { id: "s1_16", text: "AB ışını", target: "[AB" },
-    { id: "s1_17", text: "YZ doğrusu", target: "YZ" },
-    { id: "s1_18", text: "KL doğru parçası", target: "[KL]" },
-    { id: "s1_19", text: "MN doğrusu", target: "MN" },
-    { id: "s1_20", text: "KL ışını", target: "[KL" }
-];
-
-// Şekil 2 Verileri
-const sekil2Data = [
-    null, null, { symbol: "[AB]" }, { symbol: "MN" }, null, { symbol: "|AB|" },
-    null, { symbol: "[CD]" }, null, { symbol: "[MN" }, { symbol: "CD" }, { symbol: "Z" },
-    { symbol: "KL" }, { symbol: "C" }, null, null, { symbol: "ÂBC" }, null
-];
-
-// Şekil 3 Verileri
-const sekil3Data = [
-    { symbol: "[AB" }, { symbol: "YZ" }, null, { symbol: "[KL]" }, null, { symbol: "B" },
-    null, null, { symbol: "K̂LM" }, null, { symbol: "[MN]" }, null,
-    null, { symbol: "[CD" }, null, { symbol: "[KL" }, { symbol: "|YZ|" }, { symbol: "AB" }
-];
-
-// Oyun Durumu
-let timerInterval = null;
-let secondsPassed = 0;
-let score = 0;
-let matchesCount = 0;
-let gameStarted = false;
-
-function shuffleArray(array) {
-    const arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-}
-
-function startTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-    secondsPassed = 0;
-    updateTimerDisplay();
-    timerInterval = setInterval(() => {
-        secondsPassed++;
-        updateTimerDisplay();
-    }, 1000);
-}
-
-function stopTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-}
-
-function updateTimerDisplay() {
-    const mins = Math.floor(secondsPassed / 60).toString().padStart(2, '0');
-    const secs = (secondsPassed % 60).toString().padStart(2, '0');
-    document.getElementById('timerText').innerText = `${mins}:${secs}`;
-}
-
-function updateScore(delta) {
-    score = Math.max(0, score + delta);
-    document.getElementById('scoreText').innerText = score;
-}
-
-function updateProgress() {
-    document.getElementById('progressText').innerText = `${matchesCount} / 20`;
-}
-
-// Oyun Başlatma
-function initGame() {
-    stopTimer();
-    secondsPassed = 0;
-    score = 0;
-    matchesCount = 0;
-    gameStarted = false;
-
-    updateTimerDisplay();
-    updateScore(0);
-    updateProgress();
-
-    const s1Grid = document.getElementById('sekil1');
-    const s2Grid = document.getElementById('sekil2');
-    const s3Grid = document.getElementById('sekil3');
-
-    s1Grid.innerHTML = '';
-    s2Grid.innerHTML = '';
-    s3Grid.innerHTML = '';
-
-    // Şekil-1 Kartlarını Karıştırıp Yerleştir
-    const shuffledCards = shuffleArray(rawSekil1Data);
-    shuffledCards.forEach(item => {
+    // Arayüzü Oluştur
+    function init() {
+      const s1Container = document.getElementById('sekil1');
+      cardsData.forEach(card => {
         const cell = document.createElement('div');
         cell.className = 'cell';
-        
-        const card = document.createElement('div');
-        card.className = 'draggable';
-        card.innerText = item.text;
-        card.dataset.target = item.target;
-        card.id = item.id;
-        
-        makeDraggable(card);
-        cell.appendChild(card);
-        s1Grid.appendChild(cell);
-    });
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card';
+        cardEl.draggable = true;
+        cardEl.innerText = card.text;
+        cardEl.dataset.id = card.id;
+        cardEl.dataset.target = card.target;
 
-    // Şekil-2 Tablosu
-    sekil2Data.forEach(item => {
-        const cell = document.createElement('div');
-        cell.className = 'cell target-cell';
-        if (!item) {
-            cell.classList.add('colored');
-        } else {
-            cell.innerText = item.symbol;
-            cell.dataset.symbol = item.symbol;
-        }
-        s2Grid.appendChild(cell);
-    });
-
-    // Şekil-3 Tablosu
-    sekil3Data.forEach(item => {
-        const cell = document.createElement('div');
-        cell.className = 'cell target-cell';
-        if (!item) {
-            cell.classList.add('colored');
-        } else {
-            cell.innerText = item.symbol;
-            cell.dataset.symbol = item.symbol;
-        }
-        s3Grid.appendChild(cell);
-    });
-
-    document.getElementById('victoryModal').classList.remove('active');
-}
-
-function makeDraggable(el) {
-    let startX, startY, initialParent;
-
-    function onPointerDown(e) {
-        if (el.classList.contains('locked')) return;
-
-        sounds.init();
-        if (!gameStarted) {
-            gameStarted = true;
-            startTimer();
-        }
-
-        initialParent = el.parentElement;
-        const rect = el.getBoundingClientRect();
-        
-        startX = e.clientX || (e.touches && e.touches[0].clientX);
-        startY = e.clientY || (e.touches && e.touches[0].clientY);
-
-        el.classList.add('dragging');
-        el.style.width = rect.width + 'px';
-        el.style.height = rect.height + 'px';
-        el.style.left = rect.left + 'px';
-        el.style.top = rect.top + 'px';
-
-        document.addEventListener('pointermove', onPointerMove);
-        document.addEventListener('pointerup', onPointerUp);
-        document.addEventListener('touchmove', onPointerMove, {passive: false});
-        document.addEventListener('touchend', onPointerUp);
-    }
-
-    function onPointerMove(e) {
-        if (!el.classList.contains('dragging')) return;
-        if (e.preventDefault) e.preventDefault();
-
-        const currentX = e.clientX || (e.touches && e.touches[0].clientX);
-        const currentY = e.clientY || (e.touches && e.touches[0].clientY);
-
-        const dx = currentX - startX;
-        const dy = currentY - startY;
-
-        const initialLeft = parseFloat(el.style.left);
-        const initialTop = parseFloat(el.style.top);
-
-        el.style.left = (initialLeft + dx) + 'px';
-        el.style.top = (initialTop + dy) + 'px';
-
-        startX = currentX;
-        startY = currentY;
-    }
-
-    function onPointerUp(e) {
-        document.removeEventListener('pointermove', onPointerMove);
-        document.removeEventListener('pointerup', onPointerUp);
-        document.removeEventListener('touchmove', onPointerMove);
-        document.removeEventListener('touchend', onPointerUp);
-
-        if (!el.classList.contains('dragging')) return;
-        el.classList.remove('dragging');
-
-        const dropX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
-        const dropY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
-        
-        el.style.display = 'none';
-        const elemBelow = document.elementFromPoint(dropX, dropY);
-        el.style.display = 'flex';
-
-        const targetCell = elemBelow ? elemBelow.closest('.target-cell') : null;
-
-        // Doğru Eşleşme Kontrolü
-        if (targetCell && targetCell.dataset.symbol === el.dataset.target && !targetCell.classList.contains('correct')) {
-            targetCell.classList.add('correct');
-            targetCell.innerText = el.dataset.target;
-            initialParent.classList.add('empty-slot');
-            el.remove();
-
-            sounds.playCorrect();
-            updateScore(100);
-            matchesCount++;
-            updateProgress();
-
-            if (matchesCount === 20) {
-                handleVictory();
-            }
-        } else {
-            // Yanlış veya Boşluğa Bırakma
-            if (targetCell && targetCell.dataset.symbol) {
-                targetCell.classList.add('wrong-anim');
-                sounds.playWrong();
-                updateScore(-20);
-                setTimeout(() => targetCell.classList.remove('wrong-anim'), 400);
-            }
-            el.style.position = 'static';
-            el.style.width = '100%';
-            el.style.height = '100%';
-        }
-    }
-
-    el.addEventListener('pointerdown', onPointerDown);
-    el.addEventListener('touchstart', onPointerDown, {passive: false});
-}
-
-// Zafer Kutlaması ve Konfeti Efekti
-function handleVictory() {
-    stopTimer();
-    sounds.playVictory();
-
-    const highScore = localStorage.getItem('geombala_highscore') || 0;
-    if (score > highScore) {
-        localStorage.setItem('geombala_highscore', score);
-    }
-
-    document.getElementById('finalTime').innerText = document.getElementById('timerText').innerText;
-    document.getElementById('finalScore').innerText = score;
-    document.getElementById('highScoreText').innerText = Math.max(score, highScore);
-
-    document.getElementById('victoryModal').classList.add('active');
-    triggerConfetti();
-}
-
-function triggerConfetti() {
-    const canvas = document.getElementById('confettiCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const particles = [];
-    const colors = ['#f1c40f', '#e67e22', '#e74c3c', '#9b59b6', '#3498db', '#2ecc71'];
-
-    for (let i = 0; i < 120; i++) {
-        particles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height - canvas.height,
-            size: Math.random() * 8 + 4,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            speedY: Math.random() * 3 + 2,
-            speedX: Math.random() * 2 - 1,
-            rotation: Math.random() * 360,
-            rotSpeed: Math.random() * 10 - 5
-        });
-    }
-
-    let animationFrame;
-    function render() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => {
-            p.y += p.speedY;
-            p.x += p.speedX;
-            p.rotation += p.rotSpeed;
-
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate((p.rotation * Math.PI) / 180);
-            ctx.fillStyle = p.color;
-            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-            ctx.restore();
+        // Drag & Drop
+        cardEl.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', card.id);
         });
 
-        if (particles.some(p => p.y < canvas.height)) {
-            animationFrame = requestAnimationFrame(render);
-        } else {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
+        // Touch (Mobil) Seçim Support
+        cardEl.addEventListener('click', () => {
+          if (audioCtx.state === 'suspended') audioCtx.resume();
+          if (selectedCard) selectedCard.classList.remove('selected');
+          selectedCard = cardEl;
+          cardEl.classList.add('selected');
+        });
+
+        cell.appendChild(cardEl);
+        s1Container.appendChild(cell);
+      });
+
+      // Şekil 2 Oluştur
+      buildBoard('sekil2', sekil2Data, 's2-filled');
+      // Şekil 3 Oluştur
+      buildBoard('sekil3', sekil3Data, 's3-filled');
     }
-    render();
-}
 
-// Buton Etkileşimleri
-document.getElementById('resetBtn').addEventListener('click', () => {
-    sounds.init();
-    initGame();
-});
+    function buildBoard(containerId, data, filledClass) {
+      const container = document.getElementById(containerId);
+      data.forEach(item => {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        if (item === null) {
+          cell.classList.add(filledClass);
+        } else {
+          cell.innerHTML = formatSymbol(item);
+          cell.dataset.symbol = item;
 
-document.getElementById('playAgainBtn').addEventListener('click', () => {
-    initGame();
-});
+          // Drag Events
+          cell.addEventListener('dragover', (e) => e.preventDefault());
+          cell.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const cardId = e.dataTransfer.getData('text/plain');
+            const cardEl = document.querySelector(`[data-id="${cardId}"]`);
+            checkMatch(cardEl, cell);
+          });
 
-document.getElementById('soundBtn').addEventListener('click', () => {
-    sounds.muted = !sounds.muted;
-    document.getElementById('soundBtn').innerText = sounds.muted ? '🔇 Ses: Kapalı' : '🔊 Ses: Açık';
-});
+          // Touch/Click Drop (Mobil)
+          cell.addEventListener('click', () => {
+            if (selectedCard) {
+              checkMatch(selectedCard, cell);
+              selectedCard.classList.remove('selected');
+              selectedCard = null;
+            }
+          });
+        }
+        container.appendChild(cell);
+      });
+    }
 
-window.onload = initGame;
-</script>
+    // Eşleşme Kontrolü
+    function checkMatch(cardEl, targetCell) {
+      if (!cardEl || targetCell.dataset.matched) return;
 
+      const cardTarget = cardEl.dataset.target;
+      const cellSymbol = targetCell.dataset.symbol;
+
+      if (cardTarget === cellSymbol) {
+        // DOĞRU
+        playSound('correct');
+        targetCell.classList.add('correct');
+        targetCell.innerText = cardEl.innerText;
+        targetCell.dataset.matched = "true";
+        
+        // Kartı kaynağında sil (yerini boş bırak)
+        cardEl.remove();
+      } else {
+        // YANLIŞ
+        playSound('wrong');
+        targetCell.classList.add('wrong');
+        setTimeout(() => {
+          targetCell.classList.remove('wrong');
+        }, 500);
+      }
+    }
+
+    window.onload = init;
+  </script>
 </body>
 </html>
