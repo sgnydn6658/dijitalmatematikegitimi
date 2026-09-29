@@ -5,36 +5,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Matematik Sembolleri Tombala Oyunu</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f6f8;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px;
-      min-height: 100dvh;
-      overflow-x: hidden;
-    }
-    h2 { margin-bottom: 5px; font-size: 16px; color: #333; text-align: center; }
-    
-    .section-title {
-      font-weight: bold;
-      font-size: 14px;
-      margin: 10px 0 5px 0;
-      width: 100%;
-      max-width: 700px;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
     }
 
-    /* Izgara yapıları */
+    /* Tüm ekranı kaplayan ve kaydırmayı engelleyen ana gövde */
+    html, body {
+      width: 100vw;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: #f0f2f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Oyun Kabuğu - Otomatik Ölçeklenen Alan */
+    #app-container {
+      width: 100vw;
+      height: 100dvh;
+      max-width: 1200px;
+      max-height: 100dvh;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h2 {
+      font-size: clamp(12px, 2.5vh, 20px);
+      color: #1a1a1a;
+      text-align: center;
+      height: 4vh;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Oyun Görsel Düzeni */
+    .game-board {
+      width: 100%;
+      height: 94vh;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      justify-content: space-around;
+    }
+
+    .section-title {
+      font-weight: bold;
+      font-size: clamp(10px, 1.8vh, 14px);
+      margin-bottom: 2px;
+      color: #333;
+    }
+
+    /* Grid Yapıları */
+    .grid-board {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
     .grid {
       display: grid;
       gap: 2px;
-      background-color: #999;
+      background-color: #555;
       border: 2px solid #333;
-      margin-bottom: 15px;
+      border-radius: 4px;
+      padding: 2px;
       width: 100%;
-      max-width: 700px;
     }
 
     /* Şekil 1: 5 sütun, 4 satır */
@@ -49,59 +94,96 @@
       justify-content: center;
       align-items: center;
       text-align: center;
-      font-size: 11px;
+      font-size: clamp(9px, 1.6vh, 13px);
       font-weight: bold;
-      padding: 2px;
       position: relative;
+      border-radius: 2px;
+      overflow: hidden;
     }
 
-    /* Şekil 2 Renkli (Koyu Sarı/Turuncu) */
+    /* Şekil 2 Koyu Sarı / Turuncu */
     .cell.s2-filled { background-color: #d4a32b; }
-    /* Şekil 3 Renkli (Açık Turuncu) */
+    /* Şekil 3 Açık Turuncu */
     .cell.s3-filled { background-color: #f8c48c; }
 
-    /* Taşınabilir kartlar */
+    /* Taşınabilir Kartlar */
     .card {
       background-color: #ffffff;
-      border: 1px dashed #444;
+      border: 1px dashed #333;
       width: 100%;
       height: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
-      cursor: grab;
-      font-size: 11px;
+      cursor: pointer;
+      font-size: clamp(8px, 1.5vh, 12px);
       line-height: 1.1;
+      padding: 2px;
+      box-sizing: border-box;
     }
 
-    /* Durum Efektleri */
-    .correct { background-color: #4CAF50 !important; color: white; }
-    .wrong { background-color: #f44336 !important; color: white; }
-    
-    /* Mobil Seçim Efekti */
-    .selected { outline: 3px solid #2196F3; }
+    /* Durum Renkleri */
+    .correct { background-color: #4CAF50 !important; color: white !important; }
+    .wrong { background-color: #f44336 !important; color: white !important; }
+    .selected { outline: 3px solid #2196F3; z-index: 10; }
 
-    @media (max-width: 600px) {
-      .cell { font-size: 9px; }
-      .card { font-size: 9px; }
+    /* YAN EKRAN (LANDSCAPE) VE AKILLI TAHTA UYUMU */
+    @media (min-aspect-ratio: 1/1) {
+      .game-board {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .left-panel {
+        width: 42%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .right-panel {
+        width: 56%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <h2>Geometrik Semboller Tombala Oyunu</h2>
+  <div id="app-container">
+    <h2>Geometrik Semboller Tombala Oyunu</h2>
 
-  <div class="section-title">Şekil-1 (Kartlar)</div>
-  <div id="sekil1" class="grid grid-s1"></div>
+    <div class="game-board">
+      <!-- Sol Panel / Dikeyde Üst Panel (Şekil-1) -->
+      <div class="left-panel">
+        <div class="grid-board">
+          <div class="section-title">Şekil-1 (Kartlar)</div>
+          <div id="sekil1" class="grid grid-s1"></div>
+        </div>
+      </div>
 
-  <div class="section-title">Şekil-2</div>
-  <div id="sekil2" class="grid grid-s23"></div>
+      <!-- Sağ Panel / Dikeyde Alt Panel (Şekil-2 ve Şekil-3) -->
+      <div class="right-panel">
+        <div class="grid-board">
+          <div class="section-title">Şekil-2</div>
+          <div id="sekil2" class="grid grid-s23"></div>
+        </div>
 
-  <div class="section-title">Şekil-3</div>
-  <div id="sekil3" class="grid grid-s23"></div>
+        <div class="grid-board">
+          <div class="section-title">Şekil-3</div>
+          <div id="sekil3" class="grid grid-s23"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    // Şekil-1 Verileri (Soru Metni ve Doğru Eşleşecek Sembol Kodu)
     const cardsData = [
       { id: "c1", text: "AB doğru parçası", target: "[AB]" },
       { id: "c2", text: "B noktası", target: "B" },
@@ -125,21 +207,18 @@
       { id: "c20", text: "KL ışını", target: "[KL" }
     ];
 
-    // Şekil-2 Verileri (null olanlar renkli/dolu kutulardır)
     const sekil2Data = [
       null, null, "[AB]", "MN", null, "|AB|",
       null, "[CD]", null, "[MN", "CD", "Z",
       "KL", "C", null, null, "ABC_arc", null
     ];
 
-    // Şekil-3 Verileri (null olanlar renkli/dolu kutulardır)
     const sekil3Data = [
       "[AB", "YZ", null, "[KL]", null, "B",
       null, null, "KLM_arc", null, "[MN]", null,
       null, "[CD", null, "[KL", "|YZ|", "AB"
     ];
 
-    // Sembol Metinleri / Görselleştirmeleri
     function formatSymbol(code) {
       if (!code) return "";
       if (code === "KLM_arc") return "K<span style='text-decoration:overline'>L</span>M";
@@ -147,23 +226,24 @@
       return code;
     }
 
-    // Ses Efektleri (Web Audio API)
+    // Ses Efektleri
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       
       if (type === 'correct') {
-        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.25);
       } else {
         osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.2);
       }
@@ -171,7 +251,6 @@
 
     let selectedCard = null;
 
-    // Arayüzü Oluştur
     function init() {
       const s1Container = document.getElementById('sekil1');
       cardsData.forEach(card => {
@@ -184,14 +263,13 @@
         cardEl.dataset.id = card.id;
         cardEl.dataset.target = card.target;
 
-        // Drag & Drop
+        // Masaüstü Drag & Drop
         cardEl.addEventListener('dragstart', (e) => {
           e.dataTransfer.setData('text/plain', card.id);
         });
 
-        // Touch (Mobil) Seçim Support
-        cardEl.addEventListener('click', () => {
-          if (audioCtx.state === 'suspended') audioCtx.resume();
+        // Dokunmatik / Tıklama Seçimi (Mobil & Akıllı Tahta)
+        cardEl.addEventListener('pointerdown', (e) => {
           if (selectedCard) selectedCard.classList.remove('selected');
           selectedCard = cardEl;
           cardEl.classList.add('selected');
@@ -201,9 +279,7 @@
         s1Container.appendChild(cell);
       });
 
-      // Şekil 2 Oluştur
       buildBoard('sekil2', sekil2Data, 's2-filled');
-      // Şekil 3 Oluştur
       buildBoard('sekil3', sekil3Data, 's3-filled');
     }
 
@@ -218,7 +294,7 @@
           cell.innerHTML = formatSymbol(item);
           cell.dataset.symbol = item;
 
-          // Drag Events
+          // Drag - Drop Hedef Alanı
           cell.addEventListener('dragover', (e) => e.preventDefault());
           cell.addEventListener('drop', (e) => {
             e.preventDefault();
@@ -227,8 +303,8 @@
             checkMatch(cardEl, cell);
           });
 
-          // Touch/Click Drop (Mobil)
-          cell.addEventListener('click', () => {
+          // Tıklama / Dokunma İle Bırakma
+          cell.addEventListener('pointerdown', () => {
             if (selectedCard) {
               checkMatch(selectedCard, cell);
               selectedCard.classList.remove('selected');
@@ -240,7 +316,6 @@
       });
     }
 
-    // Eşleşme Kontrolü
     function checkMatch(cardEl, targetCell) {
       if (!cardEl || targetCell.dataset.matched) return;
 
@@ -248,21 +323,17 @@
       const cellSymbol = targetCell.dataset.symbol;
 
       if (cardTarget === cellSymbol) {
-        // DOĞRU
         playSound('correct');
         targetCell.classList.add('correct');
         targetCell.innerText = cardEl.innerText;
         targetCell.dataset.matched = "true";
-        
-        // Kartı kaynağında sil (yerini boş bırak)
         cardEl.remove();
       } else {
-        // YANLIŞ
         playSound('wrong');
         targetCell.classList.add('wrong');
         setTimeout(() => {
           targetCell.classList.remove('wrong');
-        }, 500);
+        }, 400);
       }
     }
 
