@@ -16,7 +16,7 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
-            touch-action: none; /* Mobil ekranda sayfa kaymasını tamamen önler */
+            touch-action: none; /* Sayfa kaymasını engeller */
             font-family: Arial, Helvetica, sans-serif;
         }
 
@@ -55,7 +55,7 @@
             margin: 0;
         }
 
-        /* OYUN KANVASI */
+        /* OYUN ALANI */
         .game-container {
             flex: 1;
             display: flex;
@@ -75,25 +75,28 @@
             color: var(--dark-navy);
         }
 
-        /* ŞEKİL 1: 5 SÜTUN X 4 SATIR KESİK ÇİZGİLİ TABLO (ORİJİNAL EN-BOY ORANI) */
+        /* ŞEKİL 1: 5 SÜTUN X 4 SATIR BİRBİRİNE TAM EŞİT DİK DÖRTGEN KUTULAR */
         .grid-shape1 {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            border: 2px dashed #2c3e50;
+            grid-template-rows: repeat(4, 1fr); /* 4 Satırın hepsini birbirine tam eşitler */
+            border: 2px dashed var(--dark-navy);
             background: #ffffff;
             border-radius: 4px;
+            gap: 0px;
+            overflow: hidden;
         }
 
         .tile-s1 {
             border: 1px dashed #7f8c8d;
-            /* En-boy oranını orijinal görseldeki gibi yatay dikdörtgen yapar */
-            aspect-ratio: 2.2 / 1;
+            height: clamp(32px, 5.8vh, 58px); /* Tüm hücrelerin yüksekliği eşittir */
+            width: 100%; /* Tüm hücrelerin genişliği eşittir */
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
             padding: 2px 4px;
-            font-size: clamp(0.6rem, 1.25vh, 0.85rem);
+            font-size: clamp(0.6rem, 1.2vh, 0.82rem);
             font-weight: bold;
             background: #ffffff;
             cursor: pointer;
@@ -121,7 +124,7 @@
             width: 100%;
         }
 
-        /* Yan çevrilmiş mobil (landscape) ve geniş ekranlarda yan yana düzen */
+        /* Mobil landscape ve geniş ekran düzeni */
         @media (min-aspect-ratio: 1.2/1) {
             .game-container {
                 padding: clamp(3px, 0.8vh, 8px);
@@ -141,6 +144,7 @@
         .bingo-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(3, 1fr);
             border: 2px solid #2c3e50;
             background: #2c3e50;
             gap: 1.5px;
@@ -150,8 +154,7 @@
 
         .cell {
             background: #ffffff;
-            /* Yüksekliği ekran boyutuna göre esner */
-            height: clamp(32px, 5.8vh, 60px);
+            height: clamp(32px, 5.8vh, 58px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -167,7 +170,7 @@
         .cell.blocked-s2 { background-color: var(--bg-shape2); cursor: default; }
         .cell.blocked-s3 { background-color: var(--bg-shape3); cursor: default; }
 
-        /* Doğru Eşleşme (Küçülüp Hücreye Yeşil Olarak Oturma) */
+        /* Doğru Eşleşme */
         .cell.correct {
             background-color: #2ecc71 !important;
             color: #ffffff;
@@ -209,7 +212,7 @@
             border-radius: 4px;
             font-size: clamp(0.7rem, 1.3vh, 0.9rem);
             font-weight: bold;
-            transform: translate(-50%, -120%); /* Parmağın hemen üst tarafında görünür */
+            transform: translate(-50%, -120%);
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             white-space: nowrap;
             border: 1px solid #fff;
@@ -258,7 +261,7 @@
     </div>
 
     <script>
-        // WEB AUDIO API (Ses Sentezleyici)
+        // WEB AUDIO API
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
 
@@ -335,7 +338,6 @@
             renderGrid("grid-s2", shape2Grid, "blocked-s2");
             renderGrid("grid-s3", shape3Grid, "blocked-s3");
 
-            // Dokunmatik kaydırmayı global engelleme
             document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
         }
 
@@ -378,14 +380,13 @@
             }
         }
 
-        // ETKİLEŞİM VE SÜRÜKLE-BIRAK YÖNETİMİ
+        // KONTROLLER
 
         function handlePointerDown(e) {
             initAudio();
             const tile = e.currentTarget;
             if (tile.classList.contains('placed')) return;
 
-            // Önceki seçimi sıfırla
             if (selectedTile && selectedTile !== tile) {
                 selectedTile.classList.remove('in-drag', 'selected-tap');
             }
@@ -420,7 +421,6 @@
                     if (cell && !cell.classList.contains('correct') && !cell.classList.contains('blocked-s2') && !cell.classList.contains('blocked-s3')) {
                         checkMatch(selectedTile, cell);
                     } else {
-                        // Sadece dokunarak seçilmiş gibi göster
                         if (selectedTile) {
                             selectedTile.classList.remove('in-drag');
                             selectedTile.classList.add('selected-tap');
@@ -450,15 +450,13 @@
             const actual = tile.dataset.text;
 
             if (expected === actual) {
-                // DOĞRU
                 playSound('correct');
                 cell.classList.add('correct');
-                cell.innerText = actual; // Metin küçülerek hücre içine tam oturur
+                cell.innerText = actual;
                 tile.classList.remove('in-drag', 'selected-tap');
-                tile.classList.add('placed'); // Şekil 1'deki yeri boş kalır
+                tile.classList.add('placed');
                 selectedTile = null;
             } else {
-                // YANLIŞ (Parça Şekil 1'deki orijinal yerine geri döner)
                 playSound('wrong');
                 cell.classList.add('wrong-flash');
                 setTimeout(() => cell.classList.remove('wrong-flash'), 300);
