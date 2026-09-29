@@ -2,342 +2,177 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Matematik Sembolleri Tombala Oyunu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Geombala</title>
   <style>
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+      touch-action: none; /* Dokunmatik kaydırmayı kilitler, sürüklemeyi pürüzsüzleştirir */
       user-select: none;
-      -webkit-user-select: none;
-      touch-action: manipulation;
     }
-
-    /* Tüm ekranı kaplayan ve kaydırmayı engelleyen ana gövde */
-    html, body {
-      width: 100vw;
-      height: 100dvh;
-      overflow: hidden;
-      background-color: #f0f2f5;
+    body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* Oyun Kabuğu - Otomatik Ölçeklenen Alan */
-    #app-container {
-      width: 100vw;
-      height: 100dvh;
-      max-width: 1200px;
-      max-height: 100dvh;
-      padding: 8px;
+      background-color: #f0f4f8;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
       align-items: center;
+      margin: 0;
+      padding: 20px;
     }
-
-    h2 {
-      font-size: clamp(12px, 2.5vh, 20px);
-      color: #1a1a1a;
-      text-align: center;
-      height: 4vh;
-      display: flex;
-      align-items: center;
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 10px;
     }
-
-    /* Oyun Görsel Düzeni */
-    .game-board {
-      width: 100%;
-      height: 94vh;
+    .game-container {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
       justify-content: space-around;
-    }
-
-    .section-title {
-      font-weight: bold;
-      font-size: clamp(10px, 1.8vh, 14px);
-      margin-bottom: 2px;
-      color: #333;
-    }
-
-    /* Grid Yapıları */
-    .grid-board {
-      display: flex;
-      flex-direction: column;
       width: 100%;
+      max-width: 800px;
+      margin-top: 20px;
     }
-
-    .grid {
-      display: grid;
-      gap: 2px;
-      background-color: #555;
-      border: 2px solid #333;
-      border-radius: 4px;
-      padding: 2px;
-      width: 100%;
-    }
-
-    /* Şekil 1: 5 sütun, 4 satır */
-    .grid-s1 { grid-template-columns: repeat(5, 1fr); }
-    /* Şekil 2 ve 3: 6 sütun, 3 satır */
-    .grid-s23 { grid-template-columns: repeat(6, 1fr); }
-
-    .cell {
-      background-color: #fff;
-      aspect-ratio: 2.2 / 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      font-size: clamp(9px, 1.6vh, 13px);
-      font-weight: bold;
-      position: relative;
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    /* Şekil 2 Koyu Sarı / Turuncu */
-    .cell.s2-filled { background-color: #d4a32b; }
-    /* Şekil 3 Açık Turuncu */
-    .cell.s3-filled { background-color: #f8c48c; }
-
-    /* Taşınabilir Kartlar */
-    .card {
+    .box {
+      width: 45%;
+      min-height: 250px;
       background-color: #ffffff;
-      border: 1px dashed #333;
-      width: 100%;
-      height: 100%;
+      border: 3px dashed #bdc3c7;
+      border-radius: 12px;
+      padding: 15px;
       display: flex;
-      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-content: flex-start;
       align-items: center;
-      cursor: pointer;
-      font-size: clamp(8px, 1.5vh, 12px);
-      line-height: 1.1;
-      padding: 2px;
-      box-sizing: border-box;
+      justify-content: center;
     }
-
-    /* Durum Renkleri */
-    .correct { background-color: #4CAF50 !important; color: white !important; }
-    .wrong { background-color: #f44336 !important; color: white !important; }
-    .selected { outline: 3px solid #2196F3; z-index: 10; }
-
-    /* YAN EKRAN (LANDSCAPE) VE AKILLI TAHTA UYUMU */
-    @media (min-aspect-ratio: 1/1) {
-      .game-board {
-        flex-direction: row;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .left-panel {
-        width: 42%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-      }
-
-      .right-panel {
-        width: 56%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 8px;
-      }
+    .box h2 {
+      width: 100%;
+      text-align: center;
+      color: #7f8c8d;
+      font-size: 1.1rem;
+      margin: 0 0 10px 0;
+    }
+    .draggable {
+      width: 70px;
+      height: 70px;
+      background-color: #3498db;
+      color: white;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      cursor: grab;
+      position: relative;
+      z-index: 10;
+    }
+    .target-box {
+      border-color: #2ecc71;
+      background-color: #e8f8f5;
     }
   </style>
 </head>
 <body>
 
-  <div id="app-container">
-    <h2>Geometrik Semboller Tombala Oyunu</h2>
+  <h1>GEOMBALA</h1>
+  <p>Şekilleri/Parçaları dokunarak hedef alana sürükleyin:</p>
 
-    <div class="game-board">
-      <!-- Sol Panel / Dikeyde Üst Panel (Şekil-1) -->
-      <div class="left-panel">
-        <div class="grid-board">
-          <div class="section-title">Şekil-1 (Kartlar)</div>
-          <div id="sekil1" class="grid grid-s1"></div>
-        </div>
-      </div>
+  <div class="game-container">
+    <!-- Kaynak Alanı -->
+    <div class="box" id="source-box">
+      <h2>Parçalar</h2>
+      <div class="draggable" style="background-color: #e74c3c;">Üçgen</div>
+      <div class="draggable" style="background-color: #9b59b6;">Kare</div>
+      <div class="draggable" style="background-color: #f1c40f;">Daire</div>
+    </div>
 
-      <!-- Sağ Panel / Dikeyde Alt Panel (Şekil-2 ve Şekil-3) -->
-      <div class="right-panel">
-        <div class="grid-board">
-          <div class="section-title">Şekil-2</div>
-          <div id="sekil2" class="grid grid-s23"></div>
-        </div>
-
-        <div class="grid-board">
-          <div class="section-title">Şekil-3</div>
-          <div id="sekil3" class="grid grid-s23"></div>
-        </div>
-      </div>
+    <!-- Hedef Alanı -->
+    <div class="box target-box" id="target-box">
+      <h2>Hedef Alan</h2>
     </div>
   </div>
 
   <script>
-    const cardsData = [
-      { id: "c1", text: "AB doğru parçası", target: "[AB]" },
-      { id: "c2", text: "B noktası", target: "B" },
-      { id: "c3", text: "CD doğrusu", target: "CD" },
-      { id: "c4", text: "KLM açısı", target: "KLM_arc" },
-      { id: "c5", text: "MN ışını", target: "[MN" },
-      { id: "c6", text: "AB doğru parçasının uzunluğu", target: "|AB|" },
-      { id: "c7", text: "KL doğrusu", target: "KL" },
-      { id: "c8", text: "C noktası", target: "C" },
-      { id: "c9", text: "CD ışını", target: "[CD" },
-      { id: "c10", text: "MN doğru parçası", target: "[MN]" },
-      { id: "c11", text: "ABC açısı", target: "ABC_arc" },
-      { id: "c12", text: "AB doğrusu", target: "AB" },
-      { id: "c13", text: "CD doğru parçası", target: "[CD]" },
-      { id: "c14", text: "YZ doğru parçasının uzunluğu", target: "|YZ|" },
-      { id: "c15", text: "Z noktası", target: "Z" },
-      { id: "c16", text: "AB ışını", target: "[AB" },
-      { id: "c17", text: "YZ doğrusu", target: "YZ" },
-      { id: "c18", text: "KL doğru parçası", target: "[KL]" },
-      { id: "c19", text: "MN doğrusu", target: "MN" },
-      { id: "c20", text: "KL ışını", target: "[KL" }
-    ];
+    const draggables = document.querySelectorAll('.draggable');
+    const targetBox = document.getElementById('target-box');
+    const sourceBox = document.getElementById('source-box');
 
-    const sekil2Data = [
-      null, null, "[AB]", "MN", null, "|AB|",
-      null, "[CD]", null, "[MN", "CD", "Z",
-      "KL", "C", null, null, "ABC_arc", null
-    ];
+    draggables.forEach(item => {
+      let active = false;
+      let currentX, currentY, initialX, initialY;
+      let xOffset = 0, yOffset = 0;
 
-    const sekil3Data = [
-      "[AB", "YZ", null, "[KL]", null, "B",
-      null, null, "KLM_arc", null, "[MN]", null,
-      null, "[CD", null, "[KL", "|YZ|", "AB"
-    ];
+      // Dokunmatik Başlangıç
+      item.addEventListener('touchstart', dragStart, { passive: false });
+      item.addEventListener('touchend', dragEnd, { passive: false });
+      item.addEventListener('touchmove', drag, { passive: false });
 
-    function formatSymbol(code) {
-      if (!code) return "";
-      if (code === "KLM_arc") return "K<span style='text-decoration:overline'>L</span>M";
-      if (code === "ABC_arc") return "A<span style='text-decoration:overline'>B</span>C";
-      return code;
-    }
+      // Fare Desteği (Masaüstü için)
+      item.addEventListener('mousedown', dragStart);
+      item.addEventListener('mouseup', dragEnd);
+      item.addEventListener('mousemove', drag);
 
-    // Ses Efektleri
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playSound(type) {
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      
-      if (type === 'correct') {
-        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.25);
-      } else {
-        osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.2);
-      }
-    }
-
-    let selectedCard = null;
-
-    function init() {
-      const s1Container = document.getElementById('sekil1');
-      cardsData.forEach(card => {
-        const cell = document.createElement('div');
-        cell.className = 'cell';
-        const cardEl = document.createElement('div');
-        cardEl.className = 'card';
-        cardEl.draggable = true;
-        cardEl.innerText = card.text;
-        cardEl.dataset.id = card.id;
-        cardEl.dataset.target = card.target;
-
-        // Masaüstü Drag & Drop
-        cardEl.addEventListener('dragstart', (e) => {
-          e.dataTransfer.setData('text/plain', card.id);
-        });
-
-        // Dokunmatik / Tıklama Seçimi (Mobil & Akıllı Tahta)
-        cardEl.addEventListener('pointerdown', (e) => {
-          if (selectedCard) selectedCard.classList.remove('selected');
-          selectedCard = cardEl;
-          cardEl.classList.add('selected');
-        });
-
-        cell.appendChild(cardEl);
-        s1Container.appendChild(cell);
-      });
-
-      buildBoard('sekil2', sekil2Data, 's2-filled');
-      buildBoard('sekil3', sekil3Data, 's3-filled');
-    }
-
-    function buildBoard(containerId, data, filledClass) {
-      const container = document.getElementById(containerId);
-      data.forEach(item => {
-        const cell = document.createElement('div');
-        cell.className = 'cell';
-        if (item === null) {
-          cell.classList.add(filledClass);
+      function dragStart(e) {
+        if (e.type === "touchstart") {
+          initialX = e.touches[0].clientX - xOffset;
+          initialY = e.touches[0].clientY - yOffset;
         } else {
-          cell.innerHTML = formatSymbol(item);
-          cell.dataset.symbol = item;
-
-          // Drag - Drop Hedef Alanı
-          cell.addEventListener('dragover', (e) => e.preventDefault());
-          cell.addEventListener('drop', (e) => {
-            e.preventDefault();
-            const cardId = e.dataTransfer.getData('text/plain');
-            const cardEl = document.querySelector(`[data-id="${cardId}"]`);
-            checkMatch(cardEl, cell);
-          });
-
-          // Tıklama / Dokunma İle Bırakma
-          cell.addEventListener('pointerdown', () => {
-            if (selectedCard) {
-              checkMatch(selectedCard, cell);
-              selectedCard.classList.remove('selected');
-              selectedCard = null;
-            }
-          });
+          initialX = e.clientX - xOffset;
+          initialY = e.clientY - yOffset;
         }
-        container.appendChild(cell);
-      });
-    }
-
-    function checkMatch(cardEl, targetCell) {
-      if (!cardEl || targetCell.dataset.matched) return;
-
-      const cardTarget = cardEl.dataset.target;
-      const cellSymbol = targetCell.dataset.symbol;
-
-      if (cardTarget === cellSymbol) {
-        playSound('correct');
-        targetCell.classList.add('correct');
-        targetCell.innerText = cardEl.innerText;
-        targetCell.dataset.matched = "true";
-        cardEl.remove();
-      } else {
-        playSound('wrong');
-        targetCell.classList.add('wrong');
-        setTimeout(() => {
-          targetCell.classList.remove('wrong');
-        }, 400);
+        active = true;
+        item.style.zIndex = 1000;
       }
-    }
 
-    window.onload = init;
+      function drag(e) {
+        if (active) {
+          e.preventDefault();
+          if (e.type === "touchmove") {
+            currentX = e.touches[0].clientX - initialX;
+            currentY = e.touches[0].clientY - initialY;
+          } else {
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+          }
+
+          xOffset = currentX;
+          yOffset = currentY;
+          setTranslate(currentX, currentY, item);
+        }
+      }
+
+      function dragEnd(e) {
+        if (!active) return;
+        active = false;
+        item.style.zIndex = 10;
+
+        // Bırakılan yerin konum kontrolü (Target Box içinde mi?)
+        const rect = targetBox.getBoundingClientRect();
+        const itemRect = item.getBoundingClientRect();
+
+        const isInside = (
+          itemRect.left >= rect.left &&
+          itemRect.right <= rect.right &&
+          itemRect.top >= rect.top &&
+          itemRect.bottom <= rect.bottom
+        );
+
+        if (isInside) {
+          targetBox.appendChild(item);
+        } else {
+          sourceBox.appendChild(item);
+        }
+
+        // Pozisyonu sıfırla (Kutu içine düzgün oturması için)
+        xOffset = 0;
+        yOffset = 0;
+        setTranslate(0, 0, item);
+      }
+
+      function setTranslate(xPos, yPos, el) {
+        el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+      }
+    });
   </script>
 </body>
 </html>
