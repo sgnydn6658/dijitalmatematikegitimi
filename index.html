@@ -1,6 +1,28 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+   <!-- Mobil görünüm düzeltme kodları -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100dvh !important; /* Mobil adres çubuğunu hesaba katan dinamik yükseklik */
+    max-height: 100dvh !important;
+    overflow: hidden !important; /* Ekranın kaymasını engeller */
+    position: fixed !important;  /* Mobil cihazlardaki kaydırma zıplamalarını önler */
+    top: 0;
+    left: 0;
+  }
+  
+  /* Oyun nesneleri veya canvas varsa ekrana sığdırır */
+  canvas, svg, img {
+    max-width: 100% !important;
+    max-height: 100dvh !important;
+    object-fit: contain !important;
+  }
+</style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Geombala Oyunu</title>
