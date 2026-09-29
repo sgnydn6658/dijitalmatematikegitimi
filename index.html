@@ -2,12 +2,13 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GEOMBALA</title>
     <style>
         :root {
-            --bg-shape2: #d8a027; /* Şekil 2 Orijinal Sarı/Hardal Rengi */
-            --bg-shape3: #f5b083; /* Şekil 3 Orijinal Turuncu Rengi */
+            --bg-shape2: #d8a027; /* Şekil-2 Orijinal Sarı/Hardal Rengi */
+            --bg-shape3: #f5b083; /* Şekil-3 Orijinal Turuncu/Yavruağzı Rengi */
+            --cell-border: #7f8c8d;
         }
 
         * {
@@ -15,188 +16,263 @@
             user-select: none;
             -webkit-user-select: none;
             touch-action: manipulation;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        body {
-            background-color: #f4f6f9;
-            color: #333;
+        html, body {
+            width: 100%;
+            height: 100%;
             margin: 0;
-            padding: 15px;
+            padding: 0;
+            overflow: hidden; /* Ekranın kaymasını engeller */
+            background-color: #f0f3f6;
             display: flex;
             flex-direction: column;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: #f39c12;
+            text-align: center;
+            padding: clamp(4px, 1vh, 10px) 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+            display: flex;
             align-items: center;
+            justify-content: space-between;
         }
 
         h1 {
-            margin: 0 0 10px 0;
-            font-size: 2rem;
-            color: #2c3e50;
-            text-align: center;
+            margin: 0;
+            font-size: clamp(1.1rem, 2.5vh, 1.8rem);
+            letter-spacing: 1px;
         }
 
         .instructions {
-            background: #e8f4f8;
-            border-left: 4px solid #3498db;
-            padding: 8px 15px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            border-radius: 4px;
+            font-size: clamp(0.7rem, 1.4vh, 0.9rem);
+            color: #ecf0f1;
+            margin: 0;
+            opacity: 0.9;
         }
 
+        /* OYUN ALANI DÜZENİ */
         .game-container {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: clamp(6px, 1.2vh, 15px);
+            padding: clamp(6px, 1.2vh, 15px);
+            max-width: 1400px;
+            margin: 0 auto;
             width: 100%;
-            max-width: 900px;
+            justify-content: space-evenly;
         }
 
         .section-header {
-            font-size: 1.1rem;
+            font-size: clamp(0.8rem, 1.6vh, 1rem);
             font-weight: bold;
-            margin-bottom: 5px;
-            color: #333;
+            margin-bottom: 3px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         /* ŞEKİL 1: KESİK ÇİZGİLİ HAVUZ */
         .grid-shape1 {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            border: 2px solid #000;
-            background: #fff;
+            border: 2px dashed #333;
+            background: #ffffff;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .tile-s1 {
-            border: 1px dashed #444;
-            min-height: 55px;
+            border: 1px dashed #7f8c8d;
+            height: clamp(38px, 6.5vh, 65px);
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 4px;
-            font-size: 0.85rem;
+            padding: 2px 4px;
+            font-size: clamp(0.7rem, 1.35vh, 0.95rem);
             font-weight: bold;
             cursor: grab;
             background: #fff;
-            transition: background 0.2s, transform 0.1s;
+            transition: opacity 0.15s ease, background-color 0.2s;
         }
 
-        .tile-s1.selected {
-            background-color: #d6eaf8;
-            border: 2px solid #3498db;
+        .tile-s1:active {
+            cursor: grabbing;
+        }
+
+        /* Sürüklenirken yerinde bırakılan boş alan */
+        .tile-s1.in-drag {
+            visibility: hidden !important;
+            opacity: 0 !important;
         }
 
         .tile-s1.placed {
-            opacity: 0.15;
-            cursor: default;
+            visibility: hidden !important;
             pointer-events: none;
         }
 
-        /* ŞEKİL 2 VE 3 KARTLARI */
+        /* ŞEKİL 2 VE 3 KARTLARI DÜZENİ */
+        .bingo-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(6px, 1.2vh, 15px);
+            width: 100%;
+        }
+
+        /* Masaüstü ve Akıllı Tahta Yan Yan Görünümü */
+        @media (min-aspect-ratio: 4/3) and (min-width: 768px) {
+            .bingo-wrapper {
+                flex-direction: row;
+            }
+            .bingo-card {
+                flex: 1;
+            }
+        }
+
+        .bingo-card {
+            width: 100%;
+        }
+
         .bingo-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            border: 2px solid #888;
-            background: #fff;
+            border: 2px solid #2c3e50;
+            background: #2c3e50;
+            gap: 1.5px;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
 
         .cell {
-            border: 1px solid #bdc3c7;
-            min-height: 55px;
+            background: #ffffff;
+            height: clamp(38px, 7vh, 70px);
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 1.05rem;
+            font-size: clamp(0.85rem, 1.8vh, 1.2rem);
             font-weight: bold;
             position: relative;
-            background: #fff;
+            padding: 2px;
         }
 
-        /* Orijinal Görseldeki Dolu Renkli Hücreler */
+        /* Dolu Renkli Hücreler */
         .cell.blocked-s2 { background-color: var(--bg-shape2); }
         .cell.blocked-s3 { background-color: var(--bg-shape3); }
 
-        /* Doğru Yerleşim Efekti */
+        /* Doğru Yerleşim (Yeşil & Boyut Küçülme) */
         .cell.correct {
             background-color: #2ecc71 !important;
-            color: white;
-            font-size: 0.75rem;
-            padding: 2px;
-            animation: shrinkIn 0.3s ease-out;
+            color: #ffffff;
+            font-size: clamp(0.65rem, 1.25vh, 0.85rem);
+            font-weight: 700;
+            line-height: 1.1;
+            animation: shrinkIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        /* Yanlış Yerleşim Efekti */
+        /* Yanlış Yerleşim (Kırmızı Efekt) */
         .cell.wrong-flash {
             background-color: #e74c3c !important;
             animation: shake 0.3s ease-in-out;
         }
 
+        /* SVG Gerçekçi Açı Sembolü */
+        .angle-symbol {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+        }
+
+        .angle-symbol svg {
+            width: clamp(14px, 2vh, 22px);
+            height: clamp(8px, 1.2vh, 14px);
+            margin-bottom: 1px;
+        }
+
+        /* Drag-Clone (Dokunmatik ve Sürükleme Görseli) */
+        .drag-clone {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            background: #3498db;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: clamp(0.75rem, 1.4vh, 0.95rem);
+            font-weight: bold;
+            transform: translate(-50%, -100%); /* Parmağın hemen üstünde görünür */
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+            border: 2px solid #ffffff;
+        }
+
         /* Animasyonlar */
         @keyframes shrinkIn {
-            from { transform: scale(1.3); }
-            to { transform: scale(1); }
+            0% { transform: scale(1.3); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .drag-clone {
-            position: fixed;
-            pointer-events: none;
-            z-index: 1000;
-            background: #3498db;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
         }
     </style>
 </head>
 <body>
 
-    <h1>GEOMBALA</h1>
-
-    <div class="instructions">
-        👉 <b>Nasıl Oynanır?</b> Şekil-1'deki ifadeleri tutup Şekil-2 veya Şekil-3'teki doğru sembolün üzerine sürükleyin (ya da ifadeye dokunup ardından hedefe dokunun). Doğru ise yeşil renkle karta oturur, yanlış ise kırmızı uyarı verip yerleşmez.
-    </div>
+    <header>
+        <h1>GEOMBALA</h1>
+        <div class="instructions">Sürükle veya Dokunarak Yerleştir</div>
+    </header>
 
     <div class="game-container">
         
         <!-- ŞEKİL 1 -->
         <div>
-            <div class="section-header">Şekil-1</div>
+            <div class="section-header">Şekil-1 (Sözel İfadeler)</div>
             <div class="grid-shape1" id="pool"></div>
         </div>
 
-        <!-- ŞEKİL 2 -->
-        <div>
-            <div class="section-header">Şekil-2</div>
-            <div class="bingo-grid" id="grid-s2"></div>
-        </div>
+        <!-- ŞEKİL 2 VE 3 -->
+        <div class="bingo-wrapper">
+            <!-- ŞEKİL 2 -->
+            <div class="bingo-card">
+                <div class="section-header">Şekil-2</div>
+                <div class="bingo-grid" id="grid-s2"></div>
+            </div>
 
-        <!-- ŞEKİL 3 -->
-        <div>
-            <div class="section-header">Şekil-3</div>
-            <div class="bingo-grid" id="grid-s3"></div>
+            <!-- ŞEKİL 3 -->
+            <div class="bingo-card">
+                <div class="section-header">Şekil-3</div>
+                <div class="bingo-grid" id="grid-s3"></div>
+            </div>
         </div>
 
     </div>
 
     <script>
-        // --- SES EFEKTLERİ (Web Audio API - Harici dosya gerektirmez) ---
+        // --- WEB AUDIO API (Ses Efektleri) ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
 
-        function playSound(type) {
+        function initAudio() {
             if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(type) {
+            initAudio();
+            if (!audioCtx) return;
+
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain);
@@ -205,8 +281,8 @@
 
             if (type === 'correct') {
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(523, now);
-                osc.frequency.exponentialRampToValueAtTime(783, now + 0.15);
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.15); // G5
                 gain.gain.setValueAtTime(0.3, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
                 osc.start(now);
@@ -222,9 +298,9 @@
             }
         }
 
-        // --- BİREBİR VERİLER ---
+        // --- VERİ VERİTABANI ---
 
-        // Şekil 1 Kart Havuzu
+        // Şekil 1 Tanımları
         const shape1Data = [
             "AB doğru parçası", "B noktası", "CD doğrusu", "KLM açısı", "MN ışını",
             "AB doğru parçasının uzunluğu", "KL doğrusu", "C noktası", "CD ışını", "MN doğru parçası",
@@ -232,17 +308,29 @@
             "AB ışını", "YZ doğrusu", "KL doğru parçası", "MN doğrusu", "KL ışını"
         ];
 
+        // Gerçekçi Açı Şapkası İçin SVG Üreteci
+        function createAngleHTML(text) {
+            return `
+                <div class="angle-symbol">
+                    <svg viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="2,10 12,2 22,10"></polyline>
+                    </svg>
+                    <span>${text}</span>
+                </div>
+            `;
+        }
+
         // Şekil 2 Grid Düzeni (3x6)
         const shape2Grid = [
             [null, null, { s: "[AB]", m: "AB doğru parçası" }, { s: "MN", m: "MN doğrusu" }, null, { s: "|AB|", m: "AB doğru parçasının uzunluğu" }],
             [null, { s: "[CD]", m: "CD doğru parçası" }, null, { s: "[MN", m: "MN ışını" }, { s: "CD", m: "CD doğrusu" }, { s: "Z", m: "Z noktası" }],
-            [{ s: "KL", m: "KL doğrusu" }, { s: "C", m: "C noktası" }, null, null, { s: "ABĈ", m: "ABC açısı" }, null]
+            [{ s: "KL", m: "KL doğrusu" }, { s: "C", m: "C noktası" }, null, null, { s: "ABC", isAngle: true, m: "ABC açısı" }, null]
         ];
 
         // Şekil 3 Grid Düzeni (3x6)
         const shape3Grid = [
             [{ s: "[AB", m: "AB ışını" }, { s: "YZ", m: "YZ doğrusu" }, null, { s: "[KL]", m: "KL doğru parçası" }, null, { s: "B", m: "B noktası" }],
-            [null, null, { s: "KLM̂", m: "KLM açısı" }, null, { s: "[MN]", m: "MN doğru parçası" }, null],
+            [null, null, { s: "KLM", isAngle: true, m: "KLM açısı" }, null, { s: "[MN]", m: "MN doğru parçası" }, null],
             [null, { s: "[CD", m: "CD ışını" }, null, { s: "[KL", m: "KL ışını" }, { s: "|YZ|", m: "YZ doğru parçasının uzunluğu" }, { s: "AB", m: "AB doğrusu" }]
         ];
 
@@ -281,10 +369,8 @@
                     if (item === null) {
                         cell.classList.add(blockClass);
                     } else {
-                        if (item.s === "KLM̂") {
-                            cell.innerHTML = '<span style="border-top:1.5px solid #000; padding-top:1px;">KLM</span>';
-                        } else if (item.s === "ABĈ") {
-                            cell.innerHTML = '<span style="border-top:1.5px solid #000; padding-top:1px;">ABC</span>';
+                        if (item.isAngle) {
+                            cell.innerHTML = createAngleHTML(item.s);
                         } else {
                             cell.innerText = item.s;
                         }
@@ -297,13 +383,18 @@
         }
 
         // --- ETKİLEŞİM YÖNETİMİ ---
+
         function handlePointerDown(e) {
+            initAudio();
             const tile = e.currentTarget;
             if (tile.classList.contains('placed')) return;
 
-            if (selectedTile) selectedTile.classList.remove('selected');
+            if (selectedTile && selectedTile !== tile) {
+                selectedTile.classList.remove('in-drag');
+            }
+
             selectedTile = tile;
-            selectedTile.classList.add('selected');
+            selectedTile.classList.add('in-drag');
 
             createDragClone(e.clientX, e.clientY, tile.dataset.text);
 
@@ -314,7 +405,7 @@
         function handlePointerMove(e) {
             if (dragClone) {
                 dragClone.style.left = e.clientX + 'px';
-                dragClone.style.top = e.clientY + 'px';
+                dragClone.style.top = (e.clientY - 10) + 'px';
             }
         }
 
@@ -329,9 +420,14 @@
 
                 if (elem) {
                     const cell = elem.closest('.cell');
-                    if (cell && !cell.classList.contains('correct')) {
+                    if (cell && !cell.classList.contains('correct') && !cell.classList.contains('blocked-s2') && !cell.classList.contains('blocked-s3')) {
                         checkMatch(selectedTile, cell);
+                    } else {
+                        // Boşa bırakıldıysa geri dön
+                        if (selectedTile) selectedTile.classList.remove('in-drag');
                     }
+                } else {
+                    if (selectedTile) selectedTile.classList.remove('in-drag');
                 }
                 removeDragClone();
             }
@@ -340,7 +436,7 @@
         function handleCellPointerUp(e) {
             if (!selectedTile) return;
             const cell = e.currentTarget;
-            if (cell.classList.contains('correct')) return;
+            if (cell.classList.contains('correct') || cell.classList.contains('blocked-s2') || cell.classList.contains('blocked-s3')) return;
 
             checkMatch(selectedTile, cell);
             removeDragClone();
@@ -351,16 +447,21 @@
             const actual = tile.dataset.text;
 
             if (expected === actual) {
+                // DOĞRU
                 playSound('correct');
                 cell.classList.add('correct');
-                cell.innerText = actual; // Metin kutuya sığacak boyuta küçülür
-                tile.classList.remove('selected');
-                tile.classList.add('placed');
+                cell.innerText = actual; // Kutunun boyutuna küçülerek yerleşir
+                tile.classList.remove('in-drag');
+                tile.classList.add('placed'); // Şekil 1'deki yeri boş kalır
                 selectedTile = null;
             } else {
+                // YANLIŞ (Geri Döner ve Yerleşmez)
                 playSound('wrong');
                 cell.classList.add('wrong-flash');
                 setTimeout(() => cell.classList.remove('wrong-flash'), 300);
+                
+                if (tile) tile.classList.remove('in-drag'); // Şekil 1'deki yerine geri döner
+                selectedTile = null;
             }
         }
 
@@ -370,7 +471,7 @@
             dragClone.className = 'drag-clone';
             dragClone.innerText = text;
             dragClone.style.left = x + 'px';
-            dragClone.style.top = y + 'px';
+            dragClone.style.top = (y - 10) + 'px';
             document.body.appendChild(dragClone);
         }
 
